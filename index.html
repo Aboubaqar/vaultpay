@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VaultPay</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+  :root{
+    --bg:#07060c;
+    --bg-2:#0d0b16;
+    --violet:#8b5cf6;
+    --cyan:#22d3ee;
+    --magenta:#ec4899;
+    --text:#f4f2fb;
+    --muted:#9893ab;
+    --line:rgba(255,255,255,0.08);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#000;}
+
+  body{
+    font-family:'Inter',sans-serif;
+    color:var(--text);
+    display:flex;
+    justify-content:center;
+    padding:24px 0;
+  }
+
+  .device{
+    width:390px;
+    min-height:844px;
+    background:radial-gradient(circle at 20% -10%, #1b1330 0%, var(--bg) 45%, var(--bg) 100%);
+    border-radius:36px;
+    overflow:hidden;
+    position:relative;
+    box-shadow:0 40px 80px rgba(0,0,0,0.6);
+  }
+
+  /* ambient glow orbs */
+  .glow{position:absolute;border-radius:50%;filter:blur(70px);opacity:0.45;pointer-events:none;}
+  .glow.a{width:260px;height:260px;background:var(--violet);top:-90px;right:-80px;}
+  .glow.b{width:220px;height:220px;background:var(--cyan);bottom:120px;left:-100px;opacity:0.25;}
+
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 24px 0 24px;
+    position:relative;z-index:5;
+  }
+  .back-arrow{color:var(--muted);font-size:18px;}
+  .dots{color:var(--muted);font-size:18px;letter-spacing:2px;}
+
+  .brandrow{
+    display:flex;align-items:center;gap:10px;
+    padding:18px 24px 0 24px;
+    position:relative;z-index:5;
+  }
+  .orb-logo{
+    width:34px;height:34px;border-radius:50%;
+    background:conic-gradient(from 180deg, var(--violet), var(--cyan), var(--magenta), var(--violet));
+    position:relative;
+    animation:spin 6s linear infinite;
+    flex-shrink:0;
+  }
+  .orb-logo::after{
+    content:'';
+    position:absolute;inset:5px;
+    border-radius:50%;
+    background:var(--bg);
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .brand-name{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:21px;
+    letter-spacing:-0.02em;
+  }
+  .brand-name span{
+    background:linear-gradient(90deg,var(--violet),var(--cyan));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  .hero{
+    position:relative;
+    padding:28px 24px 6px 24px;
+    z-index:5;
+  }
+  .eyebrow{
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--cyan);
+    font-weight:600;
+    margin-bottom:10px;
+    display:flex;align-items:center;gap:6px;
+  }
+  .eyebrow::before{
+    content:'';
+    width:6px;height:6px;border-radius:50%;
+    background:var(--cyan);
+    box-shadow:0 0 8px var(--cyan);
+  }
+
+  h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:38px;
+    line-height:1.04;
+    font-weight:700;
+    letter-spacing:-0.03em;
+    margin:0 0 12px 0;
+  }
+  h1 .grad{
+    background:linear-gradient(100deg,var(--violet),var(--magenta) 55%,var(--cyan));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+
+  .sub{
+    color:var(--muted);
+    font-size:14.5px;
+    line-height:1.5;
+    margin:0 0 20px 0;
+    max-width:300px;
+  }
+
+  /* live ticker */
+  .ticker{
+    display:inline-flex;align-items:center;gap:8px;
+    background:rgba(255,255,255,0.04);
+    border:1px solid var(--line);
+    border-radius:100px;
+    padding:7px 14px;
+    font-size:12.5px;
+    color:var(--text);
+    margin-bottom:22px;
+  }
+  .ticker b{
+    background:linear-gradient(90deg,var(--cyan),var(--violet));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .pulse-dot{
+    width:7px;height:7px;border-radius:50%;
+    background:#34d399;
+    box-shadow:0 0 0 0 rgba(52,211,153,0.7);
+    animation:pulse 1.8s infinite;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(52,211,153,0.5);}
+    70%{box-shadow:0 0 0 8px rgba(52,211,153,0);}
+    100%{box-shadow:0 0 0 0 rgba(52,211,153,0);}
+  }
+
+  /* floating card visual */
+  .cardwrap{
+    position:relative;
+    height:168px;
+    margin:0 24px 8px 24px;
+    perspective:900px;
+    z-index:4;
+  }
+  .vcard{
+    position:absolute;
+    width:240px;height:150px;
+    right:0;top:0;
+    border-radius:20px;
+    background:linear-gradient(135deg,#1a1430 0%, #2a1b46 40%, #14202e 100%);
+    border:1px solid rgba(255,255,255,0.12);
+    box-shadow:0 20px 50px rgba(139,92,246,0.25), inset 0 0 40px rgba(34,211,238,0.06);
+    transform:rotateY(-14deg) rotateX(6deg);
+    animation:float 5s ease-in-out infinite;
+    padding:16px;
+  }
+  @keyframes float{
+    0%,100%{transform:rotateY(-14deg) rotateX(6deg) translateY(0);}
+    50%{transform:rotateY(-10deg) rotateX(4deg) translateY(-8px);}
+  }
+  .vcard .chip{
+    width:30px;height:22px;border-radius:5px;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    margin-bottom:30px;
+  }
+  .vcard .vname{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.04em;color:#fff;}
+  .vcard .vnum{font-size:11px;color:var(--muted);letter-spacing:0.12em;margin-top:6px;}
+  .mood-tag{
+    position:absolute;
+    left:0;bottom:8px;
+    background:rgba(52,211,153,0.12);
+    border:1px solid rgba(52,211,153,0.4);
+    color:#34d399;
+    font-size:10.5px;
+    font-weight:600;
+    padding:5px 10px;
+    border-radius:100px;
+    display:flex;align-items:center;gap:5px;
+  }
+  .mood-tag::before{content:'●';font-size:8px;}
+
+  /* form */
+  .form{padding:14px 24px 0 24px;position:relative;z-index:5;}
+  .label{
+    font-size:11px;letter-spacing:0.1em;text-transform:uppercase;
+    color:var(--muted);margin:16px 0 7px 0;font-weight:600;
+  }
+  .field{
+    display:flex;align-items:center;gap:10px;
+    background:rgba(255,255,255,0.035);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px 16px;
+    transition:border-color .2s;
+  }
+  .field:focus-within{border-color:var(--violet);}
+  .field input{
+    background:none;border:none;outline:none;
+    color:var(--text);font-size:14.5px;width:100%;
+    font-family:'Inter',sans-serif;
+  }
+  .field input::placeholder{color:#5d5870;}
+  .ic{width:17px;height:17px;flex-shrink:0;color:var(--muted);}
+
+  .row-between{
+    display:flex;justify-content:space-between;align-items:center;
+    margin:16px 0 22px 0;font-size:13px;
+  }
+  .remember{display:flex;align-items:center;gap:8px;color:var(--muted);}
+  .remember input{accent-color:var(--violet);width:15px;height:15px;}
+  .forgot{color:var(--cyan);text-decoration:none;font-weight:500;}
+
+  .cta{
+    width:100%;
+    padding:16px;
+    border:none;border-radius:14px;
+    background:linear-gradient(95deg,var(--violet),var(--magenta) 60%, var(--cyan));
+    color:#fff;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;font-size:15.5px;
+    letter-spacing:-0.01em;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    box-shadow:0 14px 30px rgba(139,92,246,0.35);
+    cursor:pointer;
+  }
+
+  .biocta{
+    width:100%;margin-top:10px;
+    padding:14px;
+    border-radius:14px;
+    border:1px solid var(--line);
+    background:rgba(255,255,255,0.03);
+    color:var(--text);
+    font-size:14px;font-weight:600;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    cursor:pointer;
+  }
+  .biocta .ic{color:var(--cyan);width:16px;height:16px;}
+
+  .divider{
+    display:flex;align-items:center;gap:12px;
+    margin:24px 0 18px 0;
+    color:var(--muted);font-size:12px;
+  }
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--line);}
+
+  .socials{display:flex;gap:12px;justify-content:center;margin-bottom:24px;}
+  .soc{
+    width:46px;height:46px;border-radius:13px;
+    background:rgba(255,255,255,0.04);
+    border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--text);font-size:17px;font-weight:600;
+  }
+
+  .newhere{
+    margin:0 24px 22px 24px;
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:16px;
+    display:flex;align-items:center;justify-content:space-between;
+    gap:10px;
+    background:linear-gradient(120deg, rgba(139,92,246,0.07), rgba(34,211,238,0.04));
+    position:relative;z-index:5;
+  }
+  .newhere .t1{font-size:13.5px;font-weight:600;}
+  .newhere .t2{font-size:11.5px;color:var(--muted);margin-top:2px;}
+  .createbtn{
+    flex-shrink:0;
+    border:1px solid var(--violet);
+    color:var(--violet);
+    background:none;
+    padding:9px 14px;
+    border-radius:100px;
+    font-size:12.5px;font-weight:600;
+    display:flex;align-items:center;gap:5px;
+  }
+
+  .footnote{
+    text-align:center;color:#544f66;font-size:11px;
+    padding-bottom:20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="device">
+  <div class="glow a"></div>
+  <div class="glow b"></div>
+
+  <div class="topbar">
+    <span class="back-arrow">←</span>
+    <span class="dots">⋮</span>
+  </div>
+
+  <div class="brandrow">
+    <div class="orb-logo"></div>
+    <div class="brand-name">Vault<span>Pay</span></div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow">Welcome back</div>
+    <h1>Money that<br><span class="grad">moves like you.</span></h1>
+    <p class="sub">Send, save, and split — with a card that actually shows your money's mood.</p>
+    <div class="ticker"><span class="pulse-dot"></span> <b>₦2.4B+</b>&nbsp;moved by the squad today</div>
+  </div>
+
+  <div class="cardwrap">
+    <div class="vcard">
+      <div class="chip"></div>
+      <div class="vname">VAULT // ZERO</div>
+      <div class="vnum">•••• •••• •••• 4471</div>
+      <div class="mood-tag">Saving mode</div>
+    </div>
+  </div>
+
+  <div class="form">
+    <div class="label">Email or username</div>
+    <div class="field">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+      <input type="text" placeholder="you@example.com or @username">
+    </div>
+
+    <div class="label">Password</div>
+    <div class="field">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+      <input type="password" value="••••••••">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+    </div>
+
+    <div class="row-between">
+      <label class="remember"><input type="checkbox" checked> Remember me</label>
+      <a href="#" class="forgot">Forgot password?</a>
+    </div>
+
+    <button class="cta">Unlock Vault →</button>
+    <button class="biocta">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a4 4 0 00-4 4v6a4 4 0 008 0V5a4 4 0 00-4-4z"/><path d="M19 11a7 7 0 01-14 0"/><path d="M12 18v4"/></svg>
+      Continue with Face ID
+    </button>
+
+    <div class="divider">or continue with</div>
+    <div class="socials">
+      <div class="soc">G</div>
+      <div class="soc"></div>
+      <div class="soc">✦</div>
+    </div>
+  </div>
+
+  <div class="newhere">
+    <div>
+      <div class="t1">New here?</div>
+      <div class="t2">Step into the Vault — open your account in 60 seconds.</div>
+    </div>
+    <button class="createbtn">Join →</button>
+  </div>
+
+  <div class="footnote">Let's move money that moves with you ⚡</div>
+</div>
+
+</body>
+</html>
